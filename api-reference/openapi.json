@@ -186,6 +186,81 @@
           }
         }
       }
+    },
+    "/estimation": {
+      "get": {
+        "description": "Demander une estimation à partir d'une adresse postale",
+        "parameters": [
+          {
+            "name": "surface",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Surface en mètres carrés."
+          },
+          {
+            "name": "adresse",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Addresse postale."
+          },
+          {
+            "name": "type_local",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["Maison", "Appartement", "Local industriel"]
+            },
+            "description": "Type (e.g., Maison, Appartement, Local industriel)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/adresse": {
+      "get": {
+        "summary": "Recherche une adresse",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "L'addresse à rechercher (e.g., '10 rue du 8 mai 1945')."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdresseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -447,6 +522,123 @@
           "expires_in": {
             "description": "Expiration du token en secondes",
             "type": "integer"
+          }
+        }
+      },
+      "AdresseResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Adresse"
+            }
+          }
+        }
+      },
+      "Adresse": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Adresse postale."
+          },
+          "housenumber": {
+            "type": "string",
+            "description": "Numéro de l'adresse."
+          },
+          "street": {
+            "type": "string",
+            "description": "Nom de la rue."
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Code postal de l'adresse."
+          },
+          "city": {
+            "type": "string",
+            "description": "Ville de l'adresse."
+          },
+          "citycode": {
+            "type": "string",
+            "description": "Code insee."
+          },
+          "coordinates": {
+            "$ref": "#/components/schemas/Coordinates"
+          },
+          "idu": {
+            "type": "string",
+            "nullable": true,
+            "description": "Numéro unique de l'adresse."
+          },
+          "dvf_data": {
+            "type": "array",
+            "items": {},
+            "description": "Informations concernant les mutations."
+          }
+        }
+      },
+      "Coordinates": {
+        "type": "object",
+        "properties": {
+          "longitude": {
+            "type": "number",
+            "format": "float",
+            "description": "Longitude coordinate of the address."
+          },
+          "latitude": {
+            "type": "number",
+            "format": "float",
+            "description": "Latitude coordinate of the address."
+          }
+        }
+      },
+      "EstimationResponse": {
+        "type": "object",
+        "properties": {
+          "adresse": {
+            "type": "string",
+            "description": "Addresse postale."
+          },
+          "surface": {
+            "type": "string",
+            "description": "Surface en mètres carrés."
+          },
+          "type_local": {
+            "type": "string",
+            "description": "Type "
+          },
+          "quartier_id": {
+            "type": "integer",
+            "description": "ID du quartier."
+          },
+          "code_commune": {
+            "type": "string",
+            "description": "Code insee."
+          },
+          "etat_bien": {
+            "type": "string",
+            "description": "Etat du bien."
+          },
+          "prix_m2_median": {
+            "type": "number",
+            "format": "float",
+            "description": "Prix médian au mètre carré."
+          },
+          "fourchette_basse": {
+            "type": "number",
+            "format": "float",
+            "description": "Fourchette basse d'estimation."
+          },
+          "fourchette_haute": {
+            "type": "number",
+            "format": "float",
+            "description": "Fourchette haute d'estimation."
+          },
+          "estimation": {
+            "type": "number",
+            "format": "float",
+            "description": "Prix estimé."
           }
         }
       },

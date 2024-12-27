@@ -47,6 +47,13 @@
         "api-reference/endpoint/communes-find",
         "api-reference/endpoint/quartiers"
       ]
+    },
+    {
+      "group": "Points d'entrés premium",
+      "pages": [
+        "api-reference/endpoint/adresses",
+        "api-reference/endpoint/estimations"
+      ]
     }
   ]
 }
