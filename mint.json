@@ -43,7 +43,9 @@
       "group": "Points d'entrés",
       "pages": [
         "api-reference/endpoint/token",
-        "api-reference/endpoint/communes-search"
+        "api-reference/endpoint/communes-search",
+        "api-reference/endpoint/communes-find",
+        "api-reference/endpoint/quartiers"
       ]
     }
   ]
