@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://communes-finder.fr/api"
     }
   ],
   "security": [
@@ -19,29 +19,72 @@
     }
   ],
   "paths": {
-    "/plants": {
+    "/oauth/token": {
+       "post": {
+         "security": [
+
+         ],
+         "description": "Récupère un token d'authentification",
+         "requestBody": {
+           "description": "Client secret et Client ID de votre application",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/OauthToken"
+               }
+             }
+           },
+           "required": true
+         },
+         "responses": {
+           "200": {
+             "description": "Réponse token",
+             "content": {
+               "application/json": {
+                 "schema": {
+                   "$ref": "#/components/schemas/TokenResponse"
+                 }
+               }
+             }
+           },
+           "400": {
+             "description": "unexpected error",
+             "content": {
+               "application/json": {
+                 "schema": {
+                   "$ref": "#/components/schemas/Error"
+                 }
+               }
+             }
+           }
+         }
+       }
+
+    },
+    "/search/communes": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "description": "Permet de rechercher une commune",
         "parameters": [
           {
-            "name": "limit",
+            "name": "q",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "description": "commune à rechercher",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "string",
+              "minLength": 2
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Réponse",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Plant"
+                    "$ref": "#/components/schemas/CommunesResponse"
                   }
                 }
               }
@@ -58,115 +101,78 @@
             }
           }
         }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
+      "OauthToken": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
             "required": [
-              "id"
+              "client_id",
+              "client_secret"
             ],
             "type": "object",
             "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+              "client_id": {
+                "description": "le client_id fournit par votre application",
+                "type": "string"
+              },
+              "client_secret": {
+                "description": "le client_secret fournit par votre application",
+                "type": "string"
               }
             }
           }
         ]
+      },
+      "CommunesResponse": {
+        "required": [
+          "q"
+        ],
+        "properties": {
+          "type": {
+            "description": "Type de résultat",
+            "type": "string"
+          },
+
+          "code_insee": {
+            "description": "Code INSEE de la commune",
+            "type": "string"
+          },
+          "score": {
+            "description": "Pertinence de la recherche (0 à 1)",
+            "type": "integer"
+          },
+          "codesPostaux": {
+            "description": "Liste de codes postaux",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+
+        },
+        "type": "object"
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "description": "Votre token d'authentification",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "Le type du token",
+            "type": "string"
+          },
+          "expires_in": {
+            "description": "Expiration du token en secondes",
+            "type": "integer"
+          }
+        }
       },
       "Error": {
         "required": [
@@ -188,6 +194,7 @@
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
+        "description": "Token Bearer à passer dans les headers de votre requête http. <token>, étant le <token> renvoyé par le point d'entrée Token",
         "scheme": "bearer"
       }
     }
